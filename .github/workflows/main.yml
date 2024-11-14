@@ -10,17 +10,23 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-
       - name: Set up Node.js
         uses: actions/setup-node@v3.6.0
         with:
           node-version: '20'
-
       - name: Set up Python
         uses: actions/setup-python@v4.5.0
         with:
           python-version: '3.9'
-
+      - name: Install Android SDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'adopt'
+          java-version: '11'
+      - name: Install Android SDK components
+        run: |
+          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;33.0.0" "platforms;android-33"
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -42,32 +48,13 @@ jobs:
           pip install --upgrade pip
           pip install cython
           pip install buildozer
-
-          # Install Android SDK command line tools
-          wget https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip -O $HOME/android-sdk-tools.zip
-          unzip $HOME/android-sdk-tools.zip -d $HOME/android-sdk/cmdline-tools
-
-          # Clean up the zip file after extraction
-          rm $HOME/android-sdk-tools.zip
-
-          # Set the environment variables
-          export ANDROID_HOME=$HOME/android-sdk
-          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
-          export PATH=$PATH:$ANDROID_HOME/platform-tools
-
-          # Install SDK components
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;33.0.0" "platforms;android-33"
-
       - name: Clear GitHub Action cache (optional)
         run: |
           sudo rm -rf ~/.cache/pip
           sudo rm -rf ~/.buildozer
-
       - name: Build APK
         run: |
           buildozer android debug
-
       - name: Upload APK
         uses: actions/upload-artifact@v3
         with:
