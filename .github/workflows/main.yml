@@ -43,6 +43,7 @@ jobs:
           sudo apt-get install -y \
             android-sdk-build-tools \
             android-sdk-platform-tools \
+            android-build-tools \
             android-sdk
           # Set up Android environment
           export ANDROID_HOME=/usr/lib/android-sdk
