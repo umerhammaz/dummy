@@ -13,15 +13,21 @@ jobs:
     
       # Step 1: Check out the code
       - name: Check out repository
-        uses: actions/checkout@v3  # Updated to v3 for Node.js 20 compatibility
+        uses: actions/checkout@v3  # Node 20 compatible version
 
-      # Step 2: Set up Python environment
+      # Step 2: Set up Node.js (if required by the workflow)
+      - name: Set up Node.js
+        uses: actions/setup-node@v3  # Ensures Node 20 is used
+        with:
+          node-version: '20'
+
+      # Step 3: Set up Python environment
       - name: Set up Python
         uses: actions/setup-python@v4  # Updated to v4 for Node.js 20 compatibility
         with:
           python-version: '3.9'
 
-      # Step 3: Install Buildozer dependencies
+      # Step 4: Install Buildozer dependencies
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -42,13 +48,13 @@ jobs:
           pip install --upgrade pip
           pip install buildozer
 
-      # Step 4: Build the APK using Buildozer
+      # Step 5: Build the APK using Buildozer
       - name: Build APK
         run: |
           buildozer init  # Initialize if needed
           buildozer android debug  # Builds the APK in debug mode
 
-      # Step 5: Upload the APK to GitHub Artifacts
+      # Step 6: Upload the APK to GitHub Artifacts
       - name: Upload APK
         uses: actions/upload-artifact@v3
         with:
