@@ -32,8 +32,8 @@ jobs:
       - name: Install Android SDK components
         run: |
           echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;33.0.0" "platforms;android-33"
-
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;33.0.0" "platforms;android-33" "cmdline-tools;latest"
+        
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -54,8 +54,8 @@ jobs:
             zlib1g-dev
           # Install libstdc++6 for aidl
           sudo apt-get install -y libstdc++6
-          # Install aidl
-          sudo apt-get install -y aidl
+          # Install aidl from Android SDK (via SDK Manager)
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;33.0.0" "platforms;android-33" "tools"
           pip install --upgrade pip
           pip install cython
           pip install buildozer
