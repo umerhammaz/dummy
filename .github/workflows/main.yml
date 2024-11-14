@@ -20,14 +20,14 @@ jobs:
       - name: Cache Buildozer global directory
         uses: actions/cache@v2
         with:
-          path: .buildozer_global
-          key: buildozer-global-${{ hashFiles('buildozer.spec') }}
+          path: dummy/.buildozer_global
+          key: buildozer-global-${{ hashFiles('dummy/buildozer.spec') }}
 
       - name: Cache Buildozer directory
         uses: actions/cache@v2
         with:
-          path: .buildozer
-          key: ${{ runner.os }}-${{ steps.get-date.outputs.date }}-${{ hashFiles('buildozer.spec') }}
+          path: dummy/.buildozer
+          key: ${{ runner.os }}-${{ steps.get-date.outputs.date }}-${{ hashFiles('dummy/buildozer.spec') }}
 
       - name: Build with Buildozer
         uses: ArtemSBulgakov/buildozer-action@v1
@@ -35,6 +35,7 @@ jobs:
         with:
           command: buildozer android debug
           buildozer_version: stable
+          buildozer_spec: dummy/buildozer.spec  # Specify the correct path to buildozer.spec
 
       - name: Display last 100 lines of output
         run: |
