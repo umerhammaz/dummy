@@ -44,15 +44,19 @@ jobs:
           pip install buildozer
 
           # Install Android SDK command line tools
-          wget https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip
-          unzip commandlinetools-linux-7583922_latest.zip -d $HOME/android-sdk
+          wget https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip -O $HOME/android-sdk-tools.zip
+          unzip $HOME/android-sdk-tools.zip -d $HOME/android-sdk
 
-          # Move the contents of cmdline-tools into the latest folder
+          # Create the correct directory structure for cmdline-tools
+          mkdir -p $HOME/android-sdk/cmdline-tools/latest
+          
+          # Move the contents of extracted cmdline-tools into latest
           mv $HOME/android-sdk/cmdline-tools/* $HOME/android-sdk/cmdline-tools/latest/
 
-          rm commandlinetools-linux-7583922_latest.zip
+          # Clean up
+          rm $HOME/android-sdk-tools.zip
 
-          # Set up environment variables
+          # Set up environment variables for Android SDK
           export ANDROID_HOME=$HOME/android-sdk
           export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
           export PATH=$PATH:$ANDROID_HOME/platform-tools
