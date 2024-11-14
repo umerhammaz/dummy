@@ -41,9 +41,8 @@ jobs:
           pip install buildozer
           # Install Android SDK components
           sudo apt-get install -y \
-            android-sdk-build-tools \
+            android-sdk-build-tools-33 \
             android-sdk-platform-tools \
-            android-build-tools \
             android-sdk
           # Set up Android environment
           export ANDROID_HOME=/usr/lib/android-sdk
