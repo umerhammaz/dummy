@@ -68,6 +68,7 @@ jobs:
         run: |
           stdbuf -oL buildozer android debug | tail -n 100
           APK_PATH=$(find . -type f -name "*.apk" | head -n 1)
+          echo "APK Path: $APK_PATH"  # Debugging line to verify APK path
           echo "::set-output name=filename::$APK_PATH"
 
       - name: Upload APK
@@ -75,3 +76,10 @@ jobs:
         with:
           name: my_kivy_app.apk
           path: ${{ steps.buildozer.outputs.filename }}
+
+      # Alternative: Directly using find command for the path in Upload APK
+      # - name: Upload APK
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: my_kivy_app.apk
+      #     path: $(find . -type f -name "*.apk" | head -n 1)
