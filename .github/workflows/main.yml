@@ -1,52 +1,51 @@
 name: Build APK
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+ push:
+   branches: [ main ]
+ pull_request:
+   branches: [ main ]
 jobs:
-  build-apk:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v3.1.0
-      - name: Set up Node.js
-        uses: actions/setup-node@v3.6.0
-        with:
-          node-version: '20'
-      - name: Set up Python
-        uses: actions/setup-python@v4.5.0
-        with:
-          python-version: '3.9'
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            build-essential \
-            ccache \
-            git \
-            libffi-dev \
-            libltdl-dev \
-            libssl-dev \
-            libxml2-dev \
-            libxslt1-dev \
-            openjdk-11-jdk \
-            pkg-config \
-            python3-pip \
-            unzip \
-            zlib1g-dev
-          pip install --upgrade pip
-          pip install buildozer
-      - name: Clear GitHub Action cache (optional)
-        run: |
-          sudo rm -rf ~/.cache/pip
-          sudo rm -rf ~/.buildozer
-      - name: Build APK
-        run: |
-          buildozer init
-          buildozer android debug
-      - name: Upload APK
-        uses: actions/upload-artifact@v3
-        with:
-          name: my_kivy_app.apk
-          path: bin/*.apk
+ build-apk:
+   runs-on: ubuntu-latest
+   steps:
+     - name: Check out repository 
+       uses: actions/checkout@v4
+     - name: Set up Node.js
+       uses: actions/setup-node@v3.6.0
+       with:
+         node-version: '20'
+     - name: Set up Python
+       uses: actions/setup-python@v4.5.0
+       with:
+         python-version: '3.9'
+     - name: Install dependencies
+       run: |
+         sudo apt-get update
+         sudo apt-get install -y \
+           build-essential \
+           ccache \
+           git \
+           libffi-dev \
+           libltdl-dev \
+           libssl-dev \
+           libxml2-dev \
+           libxslt1-dev \
+           openjdk-11-jdk \
+           pkg-config \
+           python3-pip \
+           unzip \
+           zlib1g-dev
+         pip install --upgrade pip
+         pip install buildozer
+     - name: Clear GitHub Action cache (optional)
+       run: |
+         sudo rm -rf ~/.cache/pip
+         sudo rm -rf ~/.buildozer
+     - name: Build APK
+       run: |
+         buildozer android debug
+     - name: Upload APK
+       uses: actions/upload-artifact@v3
+       with:
+         name: my_kivy_app.apk
+         path: bin/*.apk
