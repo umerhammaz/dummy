@@ -58,6 +58,9 @@ android.preserve_sdcard = true
 # (str) Path to a custom Java class
 android.entrypoint = org.kivy.android.PythonActivity
 
+android.accept_sdk_license = True
+android.skip_update = False
+
 # Application metadata
 version = 1.0
 android.debug = 1
