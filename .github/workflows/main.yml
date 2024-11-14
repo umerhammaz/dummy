@@ -42,7 +42,7 @@ jobs:
           pip install --upgrade pip
           pip install cython
           pip install buildozer
-          
+
           # Install Android SDK command line tools
           wget https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip
           unzip commandlinetools-linux-7583922_latest.zip -d $HOME/android-sdk
@@ -50,12 +50,12 @@ jobs:
           
           # Set up environment variables
           export ANDROID_HOME=$HOME/android-sdk
-          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
+          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/bin
           export PATH=$PATH:$ANDROID_HOME/platform-tools
           
-          # Accept licenses and install required components
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;33.0.0" "platforms;android-33"
+          # Install SDK components
+          yes | $ANDROID_HOME/cmdline-tools/bin/sdkmanager --licenses
+          $ANDROID_HOME/cmdline-tools/bin/sdkmanager "platform-tools" "build-tools;33.0.0" "platforms;android-33"
 
       - name: Clear GitHub Action cache (optional)
         run: |
