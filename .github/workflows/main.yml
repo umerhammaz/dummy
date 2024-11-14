@@ -1,50 +1,68 @@
-name: CI
+name: Build APK
 
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  build:
-    runs-on: ubuntu-20.04
+  build-apk:
+    runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Check out repository
+      # Step 1: Check out the code using the latest checkout version
       - name: Check out repository
-        uses: actions/checkout@v3  # Updated to Node 20 compatible version
+        uses: actions/checkout@v3  # Explicitly set to Node 20 compatible version
 
-      # Step 2: Get current date
-      - name: Get Date
-        id: get-date
+      # Step 2: Set up Node.js to ensure Node 20 is used explicitly (if needed)
+      - name: Set up Node.js
+        uses: actions/setup-node@v3  # Ensures Node 20 compatibility
+        with:
+          node-version: '20'
+      
+      # Step 3: Set up Python environment with Node 20 compatible setup-python version
+      - name: Set up Python
+        uses: actions/setup-python@v4  # Node 20 compatible
+        with:
+          python-version: '3.9'
+
+      # Step 4: Install Buildozer and other dependencies
+      - name: Install dependencies
         run: |
-          echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
-        shell: bash
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            ccache \
+            git \
+            libffi-dev \
+            libltdl-dev \
+            libssl-dev \
+            libxml2-dev \
+            libxslt1-dev \
+            openjdk-11-jdk \
+            pkg-config \
+            python3-pip \
+            unzip \
+            zlib1g-dev
+          pip install --upgrade pip
+          pip install buildozer
 
-      # Step 3: Cache Buildozer global directory
-      - name: Cache Buildozer global directory
-        uses: actions/cache@v3  # Updated to Node 20 compatible version
-        with:
-          path: .buildozer_global
-          key: buildozer-global-${{ hashFiles('buildozer.spec') }}
+      # Step 5: Clear any potential cache issues (optional but recommended for debugging)
+      - name: Clear GitHub Action cache (optional)
+        run: |
+          sudo rm -rf ~/.cache/pip
+          sudo rm -rf ~/.buildozer
 
-      # Step 4: Cache Buildozer directory with a date-based key
-      - name: Cache Buildozer directory
-        uses: actions/cache@v3
-        with:
-          path: .buildozer
-          key: ${{ runner.os }}-${{ steps.get-date.outputs.date }}-${{ hashFiles('buildozer.spec') }}
+      # Step 6: Build the APK using Buildozer
+      - name: Build APK
+        run: |
+          buildozer init  # Initialize if needed
+          buildozer android debug  # Builds the APK in debug mode
 
-      # Step 5: Build with Buildozer
-      - name: Build with Buildozer
-        uses: ArtemSBulgakov/buildozer-action@v1
-        id: buildozer
+      # Step 7: Upload the APK using the latest version of upload-artifact action
+      - name: Upload APK
+        uses: actions/upload-artifact@v3  # Updated to v3 to ensure Node 20 compatibility
         with:
-          command: buildozer android debug
-          buildozer_version: stable
-
-      # Step 6: Upload APK artifact
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3  # Updated to Node 20 compatible version
-        with:
-          name: package
-          path: ${{ steps.buildozer.outputs.filename }}
+          name: my_kivy_app.apk
+          path: bin/*.apk  # Path where the APK is stored
