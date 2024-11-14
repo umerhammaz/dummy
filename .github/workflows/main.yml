@@ -33,7 +33,7 @@ jobs:
         run: |
           echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;33.0.0" "platforms;android-33" "cmdline-tools;latest"
-        
+
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -51,11 +51,9 @@ jobs:
             python3-pip \
             python3-dev \
             unzip \
-            zlib1g-dev
-          # Install libstdc++6 for aidl
-          sudo apt-get install -y libstdc++6
-          # Install aidl from Android SDK (via SDK Manager)
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;33.0.0" "platforms;android-33" "tools"
+            zlib1g-dev \
+            libstdc++6  # Install libstdc++6 for aidl
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "tools"
           pip install --upgrade pip
           pip install cython
           pip install buildozer
@@ -66,11 +64,14 @@ jobs:
           sudo rm -rf ~/.buildozer
 
       - name: Build APK
+        id: buildozer
         run: |
-          buildozer android debug | tail -n 100
+          stdbuf -oL buildozer android debug | tail -n 100
+          APK_PATH=$(find . -type f -name "*.apk" | head -n 1)
+          echo "filename=$APK_PATH" >> $GITHUB_ENV
 
       - name: Upload APK
         uses: actions/upload-artifact@v3
         with:
           name: my_kivy_app.apk
-          path: bin/*.apk
+          path: ${{ env.filename }}
