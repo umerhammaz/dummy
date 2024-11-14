@@ -46,11 +46,11 @@ jobs:
           # Install Android SDK command line tools
           wget https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip
           unzip commandlinetools-linux-7583922_latest.zip -d $HOME/android-sdk
-          rm commandlinetools-linux-7583922_latest.zip
 
-          # Create the proper directory structure for cmdline-tools
-          mkdir -p $HOME/android-sdk/cmdline-tools/latest
+          # Move the contents of cmdline-tools into the latest folder
           mv $HOME/android-sdk/cmdline-tools/* $HOME/android-sdk/cmdline-tools/latest/
+
+          rm commandlinetools-linux-7583922_latest.zip
 
           # Set up environment variables
           export ANDROID_HOME=$HOME/android-sdk
