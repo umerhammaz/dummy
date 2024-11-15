@@ -60,7 +60,7 @@ jobs:
       - name: Install Python dependencies, including Kivy 2.0.0
         run: |
           pip install --upgrade pip
-          pip install kivy==2.0.0
+          pip install kivy==1.11.1
           pip install cython
           pip install buildozer
 
