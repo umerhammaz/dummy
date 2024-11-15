@@ -57,7 +57,7 @@ jobs:
           # Install aidl from Android SDK (via SDK Manager)
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;33.0.0" "platforms;android-33" "tools"
 
-      - name: Install Python dependencies, including Kivy 2.0.0
+      - name: Install Python dependencies, including Kivy 1.11.1
         run: |
           pip install --upgrade pip
           pip install kivy==1.11.1
