@@ -11,36 +11,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Check out the repository to access the code
+      # Step 1: Check out the repository
       - name: Check out repository
         uses: actions/checkout@v4
 
-      # Set up Node.js (optional, included based on your original script)
-      - name: Set up Node.js
-        uses: actions/setup-node@v3.6.0
-        with:
-          node-version: '20'
-
-      # Set up Python
+      # Step 2: Set up Python environment
       - name: Set up Python
         uses: actions/setup-python@v4.5.0
         with:
           python-version: '3.9'
 
-      # Set up Java and Android SDK
+      # Step 3: Install Android SDK and Java
       - name: Install Android SDK
         uses: actions/setup-java@v3
         with:
           distribution: 'adopt'
           java-version: '11'
 
-      # Accept licenses and install necessary Android SDK components
+      # Step 4: Install necessary Android SDK components
       - name: Install Android SDK components
         run: |
           echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;33.0.0" "platforms;android-33" "cmdline-tools;latest"
-        
-      # Install essential dependencies for building Kivy apps
+
+      # Step 5: Install build dependencies
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -49,38 +43,23 @@ jobs:
             ccache \
             git \
             libffi-dev \
-            libltdl-dev \
             libssl-dev \
             libxml2-dev \
-            libxslt1-dev \
             openjdk-11-jdk \
-            pkg-config \
             python3-pip \
             python3-dev \
             unzip \
             zlib1g-dev
-          # Install additional library needed for aidl
+          # Install additional Android libraries
           sudo apt-get install -y libstdc++6
-          # Reinstall aidl from Android SDK if needed
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;33.0.0" "platforms;android-33" "tools"
 
-      # Install Python dependencies, including Kivy and Buildozer
+      # Step 6: Install Python dependencies
       - name: Install Python dependencies
         run: |
           pip install --upgrade pip
-          pip install kivy==1.11.1
-          pip install cython
-          pip install buildozer
-          # Add p4a explicitly for robustness
-          pip install p4a
+          pip install kivy==1.11.1 cython buildozer
 
-      # Clear cached directories to ensure fresh builds
-      - name: Clear GitHub Action cache (optional)
-        run: |
-          sudo rm -rf ~/.cache/pip
-          sudo rm -rf ~/.buildozer
-
-      # Build the APK and show logs if it fails
+      # Step 7: Build the APK
       - name: Build APK
         run: |
           buildozer android debug > build.log 2>&1
@@ -91,21 +70,19 @@ jobs:
           fi
         shell: bash
 
-      # Display logs for debugging purposes
+      # Step 8: Display Build Logs (optional for debugging)
       - name: Display Build Logs
-        if: failure()  # This step runs only if the previous step fails
+        if: failure()
         run: cat build.log
 
-      # Find and upload the generated APK
+      # Step 9: Upload generated APK as an artifact
       - name: Upload APK
         uses: actions/upload-artifact@v3
         with:
           name: my_kivy_app.apk
-          path: |
-            bin/*.apk
-            .buildozer/android/platform/build-armeabi-v7a/dists/twinkle/bin/*.apk
+          path: bin/*.apk
 
-      # Environment setup for Android tools (ensure paths are set correctly)
+      # Ensure the Android SDK environment variables are set
       env:
         ANDROID_HOME: ${{ runner.tool_cache }}/android-sdk
-        PATH: ${{ runner.tool_cache }}/android-sdk/cmdline-tools/latest/bin:${{ runner.tool_cache }}/android-sdk/platform-tools:${PATH}
+        PATH: ${{ runner.tool_cache }}/android-sdk/cmdline-tools/latest/bin:${{ runner.tool_cache }}/android-sdk/platform-tools:${{ env.PATH }}
