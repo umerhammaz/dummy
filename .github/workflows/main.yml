@@ -16,7 +16,6 @@ jobs:
         uses: actions/setup-python@v5.0.0
         with:
           python-version: '3.11'
-          cache: 'pip'
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -57,8 +56,6 @@ jobs:
         with:
           path: .buildozer
           key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
-          restore-keys: |
-            ${{ runner.os }}-buildozer-
 
       - name: Accept SDK licenses and setup Android SDK
         run: |
@@ -75,7 +72,6 @@ jobs:
           if [ ! -f "buildozer.spec" ]; then
             echo "Creating default buildozer.spec"
             buildozer init
-            # Update the spec file with required settings
             sed -i 's/^android.archs.*/android.archs = arm64-v8a, armeabi-v7a/' buildozer.spec
             sed -i 's/^#android.ndk.*/android.ndk = 25.2.9519653/' buildozer.spec
             sed -i 's/^#android.sdk.*/android.sdk = 34/' buildozer.spec
@@ -84,14 +80,11 @@ jobs:
 
       - name: Build APK
         run: |
-          # Clear previous build if exists
           rm -rf bin/*.apk || true
-          # Build with limited log output
           buildozer android debug 2>&1 | tee build.log
           echo "Showing last 100 lines of build log:"
           tail -n 100 build.log
           
-          # Check if APK was actually generated
           if ! ls bin/*.apk 1> /dev/null 2>&1; then
             echo "Error: APK was not generated"
             echo "Searching for errors in build log:"
