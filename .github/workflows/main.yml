@@ -2,9 +2,11 @@ name: Build APK
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   build-apk:
@@ -25,7 +27,7 @@ jobs:
       - name: Install Android SDK
         uses: actions/setup-java@v3
         with:
-          distribution: 'adopt'
+          distribution: adopt
           java-version: '11'
 
       # Step 4: Install necessary Android SDK components
@@ -50,7 +52,6 @@ jobs:
             python3-dev \
             unzip \
             zlib1g-dev
-          # Install additional Android libraries
           sudo apt-get install -y libstdc++6
 
       # Step 6: Install Python dependencies
@@ -82,7 +83,6 @@ jobs:
           name: my_kivy_app.apk
           path: bin/*.apk
 
-      # Ensure the Android SDK environment variables are set
-      env:
-        ANDROID_HOME: ${{ runner.tool_cache }}/android-sdk
-        PATH: ${{ runner.tool_cache }}/android-sdk/cmdline-tools/latest/bin:${{ runner.tool_cache }}/android-sdk/platform-tools:${{ env.PATH }}
+    env:
+      ANDROID_HOME: ${{ runner.tool_cache }}/android-sdk
+      PATH: ${{ runner.tool_cache }}/android-sdk/cmdline-tools/latest/bin:${{ runner.tool_cache }}/android-sdk/platform-tools:${{ env.PATH }}
