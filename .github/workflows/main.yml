@@ -1,39 +1,46 @@
 name: Build APK
+
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build-apk:
     runs-on: ubuntu-latest
 
     steps:
+      # Check out the repository to access the code
       - name: Check out repository
         uses: actions/checkout@v4
 
+      # Set up Node.js (optional, included based on your original script)
       - name: Set up Node.js
         uses: actions/setup-node@v3.6.0
         with:
           node-version: '20'
 
+      # Set up Python
       - name: Set up Python
         uses: actions/setup-python@v4.5.0
         with:
           python-version: '3.9'
 
+      # Set up Java and Android SDK
       - name: Install Android SDK
         uses: actions/setup-java@v3
         with:
           distribution: 'adopt'
           java-version: '11'
 
+      # Accept licenses and install necessary Android SDK components
       - name: Install Android SDK components
         run: |
           echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;33.0.0" "platforms;android-33" "cmdline-tools;latest"
         
+      # Install essential dependencies for building Kivy apps
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -52,30 +59,53 @@ jobs:
             python3-dev \
             unzip \
             zlib1g-dev
-          # Install libstdc++6 for aidl
+          # Install additional library needed for aidl
           sudo apt-get install -y libstdc++6
-          # Install aidl from Android SDK (via SDK Manager)
+          # Reinstall aidl from Android SDK if needed
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;33.0.0" "platforms;android-33" "tools"
 
-      - name: Install Python dependencies, including Kivy 1.11.1
+      # Install Python dependencies, including Kivy and Buildozer
+      - name: Install Python dependencies
         run: |
           pip install --upgrade pip
           pip install kivy==1.11.1
           pip install cython
           pip install buildozer
+          # Add p4a explicitly for robustness
+          pip install p4a
 
+      # Clear cached directories to ensure fresh builds
       - name: Clear GitHub Action cache (optional)
         run: |
           sudo rm -rf ~/.cache/pip
           sudo rm -rf ~/.buildozer
 
+      # Build the APK and show logs if it fails
       - name: Build APK
         run: |
-          buildozer android debug > build.log 2>&1 || tail -n 100 build.log
+          buildozer android debug > build.log 2>&1
+          if [ $? -ne 0 ]; then
+            echo "Build failed. Displaying last 100 lines of log:"
+            tail -n 100 build.log
+            exit 1
+          fi
         shell: bash
 
+      # Display logs for debugging purposes
+      - name: Display Build Logs
+        if: failure()  # This step runs only if the previous step fails
+        run: cat build.log
+
+      # Find and upload the generated APK
       - name: Upload APK
         uses: actions/upload-artifact@v3
         with:
           name: my_kivy_app.apk
-          path: bin/*.apk
+          path: |
+            bin/*.apk
+            .buildozer/android/platform/build-armeabi-v7a/dists/twinkle/bin/*.apk
+
+      # Environment setup for Android tools (ensure paths are set correctly)
+      env:
+        ANDROID_HOME: ${{ runner.tool_cache }}/android-sdk
+        PATH: ${{ runner.tool_cache }}/android-sdk/cmdline-tools/latest/bin:${{ runner.tool_cache }}/android-sdk/platform-tools:${PATH}
