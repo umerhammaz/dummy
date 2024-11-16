@@ -67,28 +67,21 @@ jobs:
             "cmdline-tools;latest" \
             "ndk;25.2.9519653" >/dev/null 2>&1
 
-      - name: Verify buildozer.spec exists
-        run: |
-          if [ ! -f "buildozer.spec" ]; then
-            echo "Creating default buildozer.spec"
-            buildozer init
-            sed -i 's/^android.archs.*/android.archs = arm64-v8a, armeabi-v7a/' buildozer.spec
-            sed -i 's/^#android.ndk.*/android.ndk = 25.2.9519653/' buildozer.spec
-            sed -i 's/^#android.sdk.*/android.sdk = 34/' buildozer.spec
-            sed -i 's/^#android.build_tools.*/android.build_tools = 34.0.0/' buildozer.spec
-          fi
-
       - name: Build APK
         run: |
           rm -rf bin/*.apk || true
-          buildozer android debug 2>&1 | tee build.log
-          echo "Showing last 100 lines of build log:"
-          tail -n 100 build.log
           
+          # Run buildozer with output to a temporary file
+          buildozer android debug > buildlog.txt 2>&1
+          
+          # Process the log to remove line numbers and show only last 200 lines
+          cat buildlog.txt | sed 's/^[0-9]\+[[:space:]]\+\[/[/' | tail -n 200 | tee final_log.txt
+          
+          # Check for errors in the complete log
           if ! ls bin/*.apk 1> /dev/null 2>&1; then
             echo "Error: APK was not generated"
-            echo "Searching for errors in build log:"
-            grep -i "error\|exception\|failed" build.log | tail -n 10
+            echo "Showing errors from the build:"
+            grep -i "error\|exception\|failed" buildlog.txt | tail -n 10
             exit 1
           else
             echo "APK generated successfully:"
