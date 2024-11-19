@@ -34,7 +34,7 @@ android.minapi = 21
 #orientation = sensor
 
 # (list) Requirements
-requirements = python3, kivy, ftplib, watchdog
+requirements = python3, kivy, watchdog
 
 # (bool) Indicate if the application is a game
 is_game = 0
